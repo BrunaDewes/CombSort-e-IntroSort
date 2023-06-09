@@ -1,0 +1,166 @@
+import math
+import sys
+from heapq import heappush, heappop
+
+arr = []
+
+# Função principal para classificar uma matriz de tamanho especificado usando heapsort
+
+def heapsort():
+	global arr
+	h = []
+
+	# construindo a pilha
+
+	for value in arr:
+		heappush(h, value)
+	arr = []
+
+	# extraindo os elementos classificados um por um
+
+	arr = arr + [heappop(h) for i in range(len(h))]
+
+
+# Função principal para classificar os dados usando o insertionsort
+
+def InsertionSort(begin, end):
+	left = begin
+	right = end
+
+	########### Traverse through 1 to len(arr)
+
+	for i in range(left + 1, right + 1):
+		key = arr[i]
+
+		# Move elementos do array [0.. i-1], que são
+            # maior que chave, para uma posição à frente
+            # de sua posição atual
+
+		j = i - 1
+		while j >= left and arr[j] > key:
+			arr[j + 1] = arr[j]
+			j = j - 1
+		arr[j + 1] = key
+
+
+'''Esta função pega o último elemento como pivô, 
+coloca o elemento pivô em sua posição correta no array 
+e coloca todos os menores (menores que o pivô) à esquerda do pivô 
+e todos os elementos maiores à direita do pivô'''
+
+def Partition(low, high):
+	global arr
+
+# pivô
+
+	pivot = arr[high]
+
+# índice de elemento menor
+
+	i = low - 1
+
+	for j in range(low, high):
+
+		# Se o elemento atual for menor ou igual ao pivô
+
+		if arr[j] <= pivot:
+
+			# índice de incremento do elemento menor
+
+			i = i + 1
+			(arr[i], arr[j]) = (arr[j], arr[i])
+	(arr[i + 1], arr[high]) = (arr[high], arr[i + 1])
+	return i + 1
+
+
+# Função para encontrar a mediana dos 3 elementos no índice a, b, d
+
+def MedianOfThree(a, b, d):
+	global arr
+	A = arr[a]
+	B = arr[b]
+	C = arr[d]
+
+	if A <= B and B <= C:
+		return b
+	if C <= B and B <= A:
+		return b
+	if B <= A and A <= C:
+		return a
+	if C <= A and A <= B:
+		return a
+	if B <= C and C <= A:
+		return d
+	if A <= C and C <= B:
+		return d
+
+
+# Função principal que implementa o Introsort
+# baixo --> Índice inicial,
+# alto --> Índice final
+# depthLimit --> nível de recursão
+
+def IntrosortUtil(begin, end, depthLimit):
+	global arr
+	size = end - begin
+	if size < 16:
+
+		# se o conjunto de dados for pequeno, chama o insertionsort
+
+		InsertionSort(begin, end)
+		return
+
+	if depthLimit == 0:
+
+		# se o limite de recursão ocorrer, chama o heap sort
+
+		heapsort()
+		return
+
+	pivot = MedianOfThree(begin, begin + size // 2, end)
+	(arr[pivot], arr[end]) = (arr[end], arr[pivot])
+
+	# partitionPoint é o índice de particionamento,
+    # arr[partitionPoint] agora está no lugar certo
+
+	partitionPoint = Partition(begin, end)
+
+	# Ordena os elementos separadamente antes da partição e depois da partição
+
+	IntrosortUtil(begin, partitionPoint - 1, depthLimit - 1)
+	IntrosortUtil(partitionPoint + 1, end, depthLimit - 1)
+
+
+# Função para iniciar o módulo Introsort
+
+def Introsort(begin, end):
+
+	# inicializa o depthLimit como 2 * log(length(data))
+
+	depthLimit = 2 * math.floor(math.log2(end - begin))
+	IntrosortUtil(begin, end, depthLimit)
+
+
+# Função para imprimir os dados do array
+
+def printArr():
+	print ('Ordenado: ', arr)
+
+
+def main():
+	global arr
+	arr = arr + [
+		2, 10, 14, 1, 7, 11, 17,
+		5, 0, 4, 20, 16, 9, 8,
+		18, 6, 13, 3, 12 ]
+	
+	print ('Não ordenado:', arr)
+		
+	n = len(arr)
+
+	Introsort(0, n - 1)
+	printArr()
+
+
+if __name__ == '__main__':
+	main()
